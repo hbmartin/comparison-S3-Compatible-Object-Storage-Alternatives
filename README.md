@@ -22,10 +22,10 @@
 | **Scaleway**[^scaleway]               | 750 GB / 90-day trial; ~75 GB egress free                | Pay-as-you-go; no base fee                            | €0.0146 (Multi-AZ) / €0.012 (One Zone)   | €0.01 (after free allowance)                      | EU-only regions. Sovereign cloud protection against CLOUD Act. |
 | **OVHcloud**[^ovh]               | Varies by plan                                           | Pay-as-you-go; no base fee                            | €0.008 - €0.012 (Standard)               | **$0.00** (Egress free as of Jan 2026)        | **30-day minimum retention on all tiers.** SecNumCloud qualified options. |
 | **DanubeData**[^danube]             | €50 signup credit                                        | €3.99/month                                           | €0.0039 (after 1 TB included)           | €0.0019 (after 1 TB included)                 | EU sovereign entity, no US CLOUD Act exposure. Unmetered requests. Published per-GB figures vary. |
+| **Filebase**[^filebase]             | 5 GB storage, 100k Class A, 1M Class B ops/month         | Pro $7.50/mo (500 GB included) or pay-as-you-go        | $0.015 ($15/TB)                         | **$0.00** (Unconditionally free)              | **IPFS-native**; objects content-addressed (CID) with default 3x geo-redundancy across US/EU nodes. Public IPFS data is globally addressable. |
+| **IPFS.ninja**[^ipfsninja]          | 1 GB storage, 500 files, 5 GB/mo gateway bandwidth       | $5.00/month (Bodhi)                                   | Plan-based (bundled)                    | Gateway bandwidth metered (up to 50 GB/gateway on paid) | **IPFS pinning service** with an S3-compatible endpoint. Signed upload tokens, dedicated gateways, and analytics. |
 
 ## Features
-
-The full feature matrix is split into five focused tables so each renders cleanly on GitHub. All tables share the same provider ordering. A new **IPFS support** column appears in the first table.
 
 ### Storage model, regions & API compatibility
 
@@ -42,6 +42,8 @@ The full feature matrix is split into five focused tables so each renders cleanl
 | **MinIO self-hosted**[^minio]                  | Object                                                     | Wherever you deploy it: on premises, private cloud, Kubernetes, edge, or multi-site. | **S3-compatible**.                                           | No native; community `s3x` gateway |
 | **Ceph self-hosted**[^ceph]                    | Object via RGW; Ceph platform also provides block and file | Deploy anywhere; supports multi-site object deployments.     | **S3-compatible** object API via RGW; Swift also supported.  | No native; community RADOS datastore prototype |
 | **Alibaba Cloud OSS**[^alibaba]                | Object                                                     | Public OSS regions/endpoints across China, APAC, Europe, Middle East, and US regions including **US (Virginia)**. | **S3-compatible** (OSS supports S3 API operations and an S3→OSS migration path) plus the native OSS API. | No |
+| **Filebase**[^filebase]                        | Object, content-addressed (CID)                            | Geo-distributed IPFS nodes across the US and Europe; every object pinned with **3x replication**. | **S3-compatible** API (bucket-level down) plus an IPFS pinning service API. | **Yes** (native, first-party)[^ipfs] |
+| **IPFS.ninja**[^ipfsninja]                     | Object, content-addressed (CID)                            | Global IPFS pinning with dedicated per-project gateways.     | **S3-compatible** endpoint plus a simple REST upload API.    | **Yes** (native pinning service)[^ipfs] |
 
 ### Durability, storage classes & performance
 
@@ -58,6 +60,8 @@ The full feature matrix is split into five focused tables so each renders cleanl
 | **MinIO self-hosted**                          | **Deployment-dependent**; MinIO is software, so there is no provider-managed durability/availability SLA. | Object-only core service; ILM can tier/transition to remote S3 targets. | Highly **deployment-dependent**; MinIO provides built-in benchmarking and performance-testing tooling. |
 | **Ceph self-hosted**                           | **Deployment-dependent**; no cloud-provider SLA because Ceph is self-managed software. | RGW `STANDARD` plus placement-based storage classes; lifecycle transitions and cloud transition supported. | Performance is cluster-dependent and scalable with hardware/cluster design; no single public latency SLA exists. |
 | **Alibaba Cloud OSS**                          | Durability/availability values were **unspecified in the accessed materials**. | Standard LRS/ZRS, Infrequent Access, Archive, Cold Archive.  | Concurrency-friendly multipart upload is documented; no universal IOPS/latency SLA was extracted. |
+| **Filebase**                                   | Redundancy via **default 3x replication** across geographically diverse IPFS nodes; no numeric durability/availability SLA published. | Single hot IPFS-backed tier; no complex class matrix.        | Access over the S3 API and IPFS gateways/CDN; no public IOPS/latency SLA. |
+| **IPFS.ninja**                                 | Durability via IPFS pinning/replication; no numeric SLA published. | Single pinning tier.                                         | Dedicated gateways with analytics; no public IOPS/latency SLA. |
 
 ### Security, access control & lifecycle
 
@@ -74,6 +78,8 @@ The full feature matrix is split into five focused tables so each renders cleanl
 | **MinIO self-hosted**                          | TLS 1.2+; SSE-S3/SSE-KMS; external KMS support.              | Policy-based access control, OIDC, LDAP/AD integration.      | Yes; ILM supports expiration and remote-tier transitions. |
 | **Ceph self-hosted**                           | Server-side encryption options including SSE-KMS; IAM/STS subset, bucket policies, ACLs. | RGW IAM API, STS subset, ACLs, bucket policies; OIDC patterns supported in related docs. | Yes; bucket lifecycle, cloud transition, archive sync. |
 | **Alibaba Cloud OSS**                          | Access over HTTPS/custom domains is documented; broader encryption/IAM feature details were not fully extracted. | Access-control and IAM specifics were not fully extracted from the sources used here. | OSS lifecycle and multipart-upload features exist, but lifecycle detail was not fully extracted in this pass. |
+| **Filebase**                                   | **Encryption at rest enabled by default**; TLS in transit (S3 API supports HTTP/2). | S3 access keys plus the IPFS pinning service API.            | Pin/unpin management; content-addressed objects are immutable by CID. |
+| **IPFS.ninja**                                 | TLS in transit; private gateways available.                  | S3 keys plus **signed upload tokens** for secure client-side uploads. | Pin/unpin management; CID-addressed immutability. |
 
 ### Pricing, free tiers & explicit limits
 
@@ -90,6 +96,8 @@ The full feature matrix is split into five focused tables so each renders cleanl
 | **MinIO self-hosted**                          | Infrastructure/network-dependent; no software egress fee.    | **Community OSS software is free**; no hosted free-tier quota applies. | **Per-GB software price unspecified** for self-hosted use; enterprise subscription pricing not publicly rendered per GB. |
 | **Ceph self-hosted**                           | Infrastructure/network-dependent.                            | **Open source**, so no provider free-tier quota or software charge. | **Per-GB software price unspecified**; commercial support depends on downstream vendors/integrators. |
 | **Alibaba Cloud OSS**                          | Example pricing shows **US (Virginia) egress commonly $0.076/GB** to many destinations; some OSS-to-CDN paths are free. | **First 5 GB Standard LRS free** for new users in the listed regions. | **US (Virginia) Standard LRS:** **~$0.017/GB-month** above 5 GB; **Standard ZRS:** **~$0.020/GB-month**. |
+| **Filebase**                                   | **Free egress on all plans** (no per-GB data-transfer fee).  | **Free tier:** **5 GB**, **100k Class A**, **1M Class B** requests, free egress. | **$15/TB-month** (**$0.015/GB-month**); Pro plan **$7.50/month** includes 500 GB. |
+| **IPFS.ninja**                                 | Gateway bandwidth metered: **5 GB/month free**, scaling to **up to 50 GB per gateway** on paid plans. | **Free tier:** **1 GB**, **500 files**, private gateway.     | **$5/month** (Bodhi plan). |
 
 ### Ecosystem, deployment & compliance
 
@@ -106,6 +114,8 @@ The full feature matrix is split into five focused tables so each renders cleanl
 | **MinIO self-hosted**                          | Strong with Kubernetes, AI/analytics pipelines, S3 SDK reuse, and self-managed sovereign storage. | **Yes**; this is its core use case.                          | Compliance is primarily the operator’s responsibility; MinIO provides security primitives but not a hosted certification envelope. |
 | **Ceph self-hosted**                           | Best when you also want **block + file + object** in one private-cloud storage fabric. | **Yes**; core Ceph use case.                                 | Compliance is operator/integrator responsibility. |
 | **Alibaba Cloud OSS**                          | Strong integration with Alibaba Cloud CDN and regional cloud services. | Hybrid/migration tooling exists in the broader OSS ecosystem, but exact on-prem option details were not fully extracted. | Compliance certifications were not fully extracted in the sources used here. |
+| **Filebase**                                   | Web3/NFT and decentralized-storage ecosystem; drop-in S3 for existing tooling and dApps; IPFS pinning service API. | Cloud-managed service; no first-party on-prem product (you can run your own IPFS node separately). | Public compliance-certification list was not fully extracted from the sources used here. |
+| **IPFS.ninja**                                 | Web3 developer tooling: REST + S3 API, signed upload tokens, dedicated gateways, and gateway analytics. | Cloud-managed pinning service; no on-prem offering. | Public compliance-certification list was not fully extracted from the sources used here. |
 
 ## Vendor Lock-In: Egress and the Escape Cost
 
@@ -120,6 +130,7 @@ The true financial burden of cloud storage is dictated by data transfer out (egr
 | **Backblaze B2**[^b2]         | $0.010 (after allowance)            | ~$1,000 (if unmitigated)       | 3x average monthly storage    |
 | **Wasabi**[^wasabi]               | $0.000 (conditional)                | $0 (if within 1:1 limit)       | Equal to active stored volume |
 | **Oracle OCI**[^oci]           | $0.0085 (after allowance)           | ~$765                          | 10 TB / month                 |
+| **Filebase**[^filebase]         | $0.000                              | $0                             | Unlimited (free egress)       |
 
 ## Practical conclusions
 
@@ -127,10 +138,11 @@ A good practical default is to choose by **dominant constraint**:
 
 ```mermaid
 flowchart TD
-    A[Primary constraint] --> B[Lowest managed cost]
+    A([Primary constraint]) --> B[Lowest managed cost]
     A --> C[No-egress public delivery]
     A --> D[Deep cloud ecosystem and compliance]
     A --> E[Self-hosted sovereignty]
+    A --> F[Decentralized / content-addressed]
 
     B --> B1[Backblaze B2]
     B --> B2[Wasabi]
@@ -139,6 +151,7 @@ flowchart TD
     C --> C1[Cloudflare R2]
     C --> C2[Wasabi]
     C --> C3[Backblaze B2 with partner free egress]
+    C --> C4[Filebase: free egress + IPFS gateways]
 
     D --> D1[Google Cloud Storage]
     D --> D2[Azure Blob Storage]
@@ -147,6 +160,12 @@ flowchart TD
 
     E --> E1[MinIO for S3-first self-hosting]
     E --> E2[Ceph for unified object-block-file platforms]
+
+    F --> F1[Filebase: S3 API over IPFS]
+    F --> F2[IPFS.ninja: S3-compatible IPFS pinning]
+
+    classDef constraint fill:#4338ca,stroke:#312e81,color:#ffffff;
+    class B,C,D,E,F constraint;
 ```
 
 That decision structure reflects the evidence in the pricing, compatibility, lifecycle, and security documentation above. The report’s strongest bottom-line finding is that **the “best alternative to S3” depends less on object durability and more on the interaction between API portability, egress model, and operational responsibility**. Durability has largely converged among credible providers; what varies sharply is whether you pay in **network egress**, **control-plane differences**, or **self-hosted operations**.
@@ -175,4 +194,6 @@ Sources below were consulted to verify the figures in this document (as of July 
 [^minio]: MinIO — [S3 compatibility](https://min.io/product/s3-compatibility), [identity & access management](https://min.io/docs/minio/linux/administration/identity-access-management.html), [object lifecycle management](https://min.io/docs/minio/linux/administration/object-management/object-lifecycle-management.html).
 [^ceph]: Ceph RADOS Gateway — [S3 API](https://docs.ceph.com/en/latest/radosgw/s3/), [encryption](https://docs.ceph.com/en/latest/radosgw/encryption/), [STS](https://docs.ceph.com/en/latest/radosgw/STS/).
 [^alibaba]: Alibaba Cloud OSS — [regions & endpoints](https://www.alibabacloud.com/help/en/oss/user-guide/regions-and-endpoints), [S3 migration / compatibility](https://www.alibabacloud.com/help/en/object-storage-service/latest/seamlessly-migrate-data-from-amazon-s3-to-alibaba-cloud-oss), [storage fees](https://www.alibabacloud.com/help/en/oss/storage-fees). OSS is S3-compatible for core API operations and documents an S3→OSS migration path.
-[^ipfs]: IPFS = [InterPlanetary File System](https://ipfs.tech/). No surveyed provider offers first-party/native IPFS storage. Closest options: MinIO via the community [`s3x`](https://github.com/RTradeLtd/s3x) gateway; Ceph via a community RADOS datastore prototype; Cloudflare's public IPFS gateways were [deprecated in 2024](https://blog.cloudflare.com/cloudflares-public-ipfs-gateways-and-supporting-interplanetary-shipyard/); Scaleway's IPFS Pinning stopped accepting new data on 2024-11-27. Any provider can, of course, host a self-managed IPFS node on its compute.
+[^ipfs]: IPFS = [InterPlanetary File System](https://ipfs.tech/). Two surveyed providers offer first-party native IPFS storage behind an S3-compatible API: **Filebase** and **IPFS.ninja**. Among the general-purpose S3 providers, none offer native IPFS. Closest options there: MinIO via the community [`s3x`](https://github.com/RTradeLtd/s3x) gateway; Ceph via a community RADOS datastore prototype; Cloudflare's public IPFS gateways were [deprecated in 2024](https://blog.cloudflare.com/cloudflares-public-ipfs-gateways-and-supporting-interplanetary-shipyard/); Scaleway's IPFS Pinning stopped accepting new data on 2024-11-27. Any provider can, of course, host a self-managed IPFS node on its compute.
+[^filebase]: Filebase — [home](https://filebase.com/), [object storage & pricing](https://filebase.com/object-storage/), [docs](https://filebase.com/docs/). S3-compatible object storage that writes to IPFS with default 3x geo-redundancy across US/EU nodes; **$15/TB-month ($0.015/GB) with free egress**; free tier of 5 GB (100k Class A, 1M Class B requests). Encryption at rest and in transit enabled by default.
+[^ipfsninja]: IPFS.ninja — [S3 compatibility](https://ipfs.ninja/docs/api/s3-compatibility), [home](https://ipfs.ninja/). IPFS pinning service exposing a simple REST upload API plus an S3-compatible endpoint; free tier of 1 GB / 500 files with 5 GB/month gateway bandwidth; paid plans from **$5/month (Bodhi)**, gateway bandwidth scaling to ~50 GB per gateway. Features signed upload tokens, dedicated gateways, and analytics.
