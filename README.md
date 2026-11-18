@@ -73,7 +73,7 @@ Hot/standard class, US region where the provider has a choice (AWS us-east-1, Az
 | --- | --- | --- | --- | --- |
 | IDrive e2 (monthly plan)[^idrive] | $60.00 | $0 | $0 | **$60** |
 | Backblaze B2[^b2] | $69.43 | $0 | $0 | **$69** |
-| Wasabi Pay-Go[^wasabi] | $79.90 | $0 | $0 | **$80** |
+| Wasabi Pay-Go[^wasabi] | $78.03 | $0 | $0 | **$78** |
 | Cloudflare R2 Standard[^r2] | $149.85 | $0 | $0 (inside free tier) | **$150** |
 | Filebase Pro, object buckets[^filebase] | $150.00 | $0 | $0 (included) | **$150** |
 | IBM COS One Rate (<50 TB)[^ibm] | $200.00 | $0 (≤100% of stored) | $0 | **$200** |
